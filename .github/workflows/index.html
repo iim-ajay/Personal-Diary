@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Personal Diary</title>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --paper: #fdf6e3;
+      --paper-dark: #f5ead0;
+      --ink: #2c1a0e;
+      --ink-light: #5a3e28;
+      --red-line: #e8a0a0;
+      --blue-line: #b8cde8;
+      --accent: #c0392b;
+      --gold: #c9a84c;
+      --shadow: rgba(44, 26, 14, 0.15);
+    }
+
+    body {
+      background: #8b7355;
+      background-image:
+        radial-gradient(ellipse at 20% 50%, #6b5040 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, #a08060 0%, transparent 50%);
+      min-height: 100vh;
+      font-family: 'Lora', serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 16px 80px;
+    }
+
+    /* ── HEADER ── */
+    .diary-cover {
+      width: 100%;
+      max-width: 680px;
+      background: linear-gradient(135deg, #8b1a1a 0%, #6b1414 50%, #4a0f0f 100%);
+      border-radius: 4px 18px 18px 4px;
+      padding: 36px 40px;
+      margin-bottom: 8px;
+      box-shadow:
+        -6px 0 0 #3a0a0a,
+        6px 6px 20px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+      position: relative;
+      overflow: hidden;
+      animation: slideDown 0.8s ease both;
+    }
+    .diary-cover::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 28px;
+      background: linear-gradient(to right, #2a0808, #4a0f0f);
+      box-shadow: inset -4px 0 8px rgba(0,0,0,0.4);
+    }
+    .diary-cover::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 160px; height: 160px;
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .cover-inner { padding-left: 24px; position: relative; z-index: 1; }
+    .cover-label {
+      font-family: 'Caveat', cursive;
+      font-size: 13px;
+      color: rgba(201,168,76,0.7);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .cover-title {
+      font-family: 'Caveat', cursive;
+      font-size: 42px;
+      font-weight: 700;
+      color: #f5d78e;
+      line-height: 1.1;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+    }
+    .cover-subtitle {
+      font-family: 'Caveat', cursive;
+      font-size: 18px;
+      color: rgba(245,215,142,0.6);
+      margin-top: 4px;
+    }
+    .cover-lock {
+      position: absolute;
+      right: 32px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 28px;
+      opacity: 0.6;
+    }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      background: var(--paper-dark);
+      border-bottom: 1px solid rgba(44,26,14,0.1);
+      margin-bottom: 0;
+      border-radius: 0;
+      animation: slideDown 0.9s ease both;
+      flex-wrap: wrap;
+    }
+    .toolbar button {
+      font-family: 'Caveat', cursive;
+      font-size: 15px;
+      border: 1.5px solid rgba(44,26,14,0.2);
+      background: var(--paper);
+      color: var(--ink-light);
+      padding: 5px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .toolbar button:hover, .toolbar button.active {
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
+    .toolbar .spacer { flex: 1; }
+    .toolbar .date-badge {
+      font-family: 'Caveat', cursive;
+      font-size: 14px;
+      color: var(--ink-light);
+      opacity: 0.7;
+      align-self: center;
+      white-space: nowrap;
+    }
+
+    /* ── DIARY BOOK ── */
+    .diary-book {
+      width: 100%;
+      max-width: 680px;
+      background: var(--paper);
+      border-radius: 0 0 4px 4px;
+      box-shadow:
+        -6px 0 0 #5a3a20,
+        8px 8px 30px rgba(0,0,0,0.4),
+        inset 0 0 60px rgba(201,168,76,0.04);
+      position: relative;
+      animation: fadeIn 1s ease 0.2s both;
+    }
+
+    /* ── RULED LINES ── */
+    .page {
+      padding: 28px 48px 40px 72px;
+      position: relative;
+      min-height: 600px;
+    }
+    .page::before {
+      content: '';
+      position: absolute;
+      left: 56px; top: 0; bottom: 0;
+      width: 1.5px;
+      background: var(--red-line);
+      opacity: 0.6;
+    }
+    .page-lines {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 31px,
+        var(--blue-line) 31px,
+        var(--blue-line) 32px
+      );
+      opacity: 0.35;
+      pointer-events: none;
+    }
+    .page-number {
+      position: absolute;
+      bottom: 16px;
+      right: 40px;
+      font-family: 'Caveat', cursive;
+      font-size: 14px;
+      color: var(--ink-light);
+      opacity: 0.4;
+    }
+
+    /* ── ENTRY FORM ── */
+    .entry-form { position: relative; z-index: 1; }
+    .entry-header {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 24px;
+      border-bottom: 1px dashed rgba(44,26,14,0.15);
+      padding-bottom: 10px;
+    }
+    .entry-date-input {
+      font-family: 'Caveat', cursive;
+      font-size: 20px;
+      color: var(--accent);
+      background: transparent;
+      border: none;
+      outline: none;
+      width: 180px;
+    }
+    .entry-mood {
+      display: flex;
+      gap: 6px;
+      margin-left: auto;
+    }
+    .mood-btn {
+      font-size: 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      opacity: 0.4;
+      transition: all 0.2s;
+      line-height: 1;
+      padding: 2px;
+    }
+    .mood-btn:hover, .mood-btn.selected {
+      opacity: 1;
+      transform: scale(1.3);
+    }
+
+    .entry-title-input {
+      display: block;
+      width: 100%;
+      font-family: 'Caveat', cursive;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--ink);
+      background: transparent;
+      border: none;
+      outline: none;
+      margin-bottom: 12px;
+      line-height: 32px;
+    }
+    .entry-title-input::placeholder { color: rgba(44,26,14,0.25); }
+
+    .entry-body {
+      display: block;
+      width: 100%;
+      min-height: 260px;
+      font-family: 'Caveat', cursive;
+      font-size: 19px;
+      line-height: 32px;
+      color: var(--ink);
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      letter-spacing: 0.3px;
+    }
+    .entry-body::placeholder { color: rgba(44,26,14,0.22); }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px dashed rgba(44,26,14,0.15);
+    }
+    .btn-save {
+      font-family: 'Caveat', cursive;
+      font-size: 17px;
+      background: var(--ink);
+      color: var(--paper);
+      border: none;
+      padding: 10px 28px;
+      border-radius: 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.5px;
+    }
+    .btn-save:hover { background: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .btn-clear {
+      font-family: 'Caveat', cursive;
+      font-size: 17px;
+      background: transparent;
+      color: var(--ink-light);
+      border: 1.5px solid rgba(44,26,14,0.2);
+      padding: 10px 20px;
+      border-radius: 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-clear:hover { border-color: var(--accent); color: var(--accent); }
+    .save-msg {
+      font-family: 'Caveat', cursive;
+      font-size: 16px;
+      color: #2e7d32;
+      align-self: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .save-msg.show { opacity: 1; }
+
+    /* ── DIVIDER ── */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 48px 16px 72px;
+      position: relative;
+    }
+    .section-divider::before {
+      content: '';
+      position: absolute;
+      left: 56px; top: 0; bottom: 0;
+      width: 1.5px;
+      background: var(--red-line);
+      opacity: 0.6;
+    }
+    .divider-line { flex: 1; height: 1px; background: rgba(44,26,14,0.12); }
+    .divider-text {
+      font-family: 'Caveat', cursive;
+      font-size: 15px;
+      color: var(--ink-light);
+      opacity: 0.5;
+      white-space: nowrap;
+      letter-spacing: 2px;
+    }
+
+    /* ── ENTRIES LIST ── */
+    .entries-section {
+      padding: 8px 0 40px;
+    }
+    .entry-card {
+      margin: 0 48px 0 72px;
+      padding: 20px 0 20px;
+      border-bottom: 1px dashed rgba(44,26,14,0.1);
+      position: relative;
+      animation: fadeUp 0.4s ease both;
+      cursor: pointer;
+    }
+    .entry-card:last-child { border-bottom: none; }
+    .entry-card-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .card-date {
+      font-family: 'Caveat', cursive;
+      font-size: 14px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .card-mood-display { font-size: 16px; }
+    .card-actions { margin-left: auto; display: flex; gap: 6px; opacity: 0; transition: opacity 0.2s; }
+    .entry-card:hover .card-actions { opacity: 1; }
+    .card-action-btn {
+      font-size: 13px;
+      background: none;
+      border: 1px solid rgba(44,26,14,0.15);
+      color: var(--ink-light);
+      padding: 2px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: 'Caveat', cursive;
+      transition: all 0.15s;
+    }
+    .card-action-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+    .card-title {
+      font-family: 'Caveat', cursive;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+    .card-body {
+      font-family: 'Caveat', cursive;
+      font-size: 17px;
+      color: var(--ink-light);
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-body.expanded { -webkit-line-clamp: unset; }
+    .card-tags { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+    .tag {
+      font-family: 'Caveat', cursive;
+      font-size: 13px;
+      padding: 2px 10px;
+      border-radius: 12px;
+      background: rgba(44,26,14,0.07);
+      color: var(--ink-light);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 0;
+      opacity: 0.4;
+    }
+    .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p {
+      font-family: 'Caveat', cursive;
+      font-size: 20px;
+      color: var(--ink-light);
+    }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      padding: 14px 48px 14px 72px;
+      background: rgba(44,26,14,0.03);
+      border-top: 1px solid rgba(44,26,14,0.08);
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      position: relative;
+    }
+    .stats-bar::before {
+      content: '';
+      position: absolute;
+      left: 56px; top: 0; bottom: 0;
+      width: 1.5px;
+      background: var(--red-line);
+      opacity: 0.6;
+    }
+    .stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .stat-num {
+      font-family: 'Caveat', cursive;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .stat-label {
+      font-family: 'Caveat', cursive;
+      font-size: 13px;
+      color: var(--ink-light);
+      opacity: 0.6;
+    }
+
+    /* ── SEARCH ── */
+    .search-bar {
+      display: none;
+      padding: 12px 48px 0 72px;
+      position: relative;
+    }
+    .search-bar.open { display: block; }
+    .search-bar::before {
+      content: '';
+      position: absolute;
+      left: 56px; top: 0; bottom: 0;
+      width: 1.5px;
+      background: var(--red-line);
+      opacity: 0.6;
+    }
+    .search-input {
+      width: 100%;
+      font-family: 'Caveat', cursive;
+      font-size: 18px;
+      background: rgba(44,26,14,0.04);
+      border: 1.5px solid rgba(44,26,14,0.15);
+      border-radius: 24px;
+      padding: 8px 20px;
+      color: var(--ink);
+      outline: none;
+    }
+    .search-input:focus { border-color: var(--accent); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── SCROLL HINT ── */
+    .scroll-hint {
+      text-align: center;
+      padding: 8px;
+      font-family: 'Caveat', cursive;
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      margin-top: 12px;
+    }
+
+    @media (max-width: 500px) {
+      .page { padding: 20px 20px 30px 56px; }
+      .page::before { left: 40px; }
+      .page-lines { background-image: repeating-linear-gradient(to bottom, transparent, transparent 31px, var(--blue-line) 31px, var(--blue-line) 32px); }
+      .entry-card { margin: 0 20px 0 56px; }
+      .section-divider, .stats-bar, .search-bar { padding-left: 56px; }
+      .section-divider::before, .stats-bar::before, .search-bar::before { left: 40px; }
+      .cover-title { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="diary-cover">
+  <div class="cover-inner">
+    <div class="cover-label">Personal Diary</div>
+    <div class="cover-title">My Journal ✦</div>
+    <div class="cover-subtitle">thoughts, memories & moments</div>
+  </div>
+  <div class="cover-lock">🔒</div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <button class="active" onclick="showView('write', this)">✏️ Write</button>
+  <button onclick="showView('entries', this)">📖 Entries</button>
+  <button onclick="toggleSearch()">🔍 Search</button>
+  <div class="spacer"></div>
+  <div class="date-badge" id="today-date"></div>
+</div>
+
+<!-- DIARY BOOK -->
+<div class="diary-book" id="diary-book">
+
+  <!-- WRITE VIEW -->
+  <div id="write-view">
+    <div class="page">
+      <div class="page-lines"></div>
+      <div class="entry-form">
+        <div class="entry-header">
+          <input type="text" class="entry-date-input" id="entry-date" placeholder="Date..." />
+          <div class="entry-mood" id="mood-picker">
+            <button class="mood-btn" onclick="selectMood(this, '😊')">😊</button>
+            <button class="mood-btn" onclick="selectMood(this, '😔')">😔</button>
+            <button class="mood-btn" onclick="selectMood(this, '😤')">😤</button>
+            <button class="mood-btn" onclick="selectMood(this, '🥰')">🥰</button>
+            <button class="mood-btn" onclick="selectMood(this, '😴')">😴</button>
+            <button class="mood-btn" onclick="selectMood(this, '🤔')">🤔</button>
+          </div>
+        </div>
+        <input type="text" class="entry-title-input" id="entry-title" placeholder="Today's entry title..." />
+        <textarea class="entry-body" id="entry-body" placeholder="Dear Diary,&#10;&#10;Today was..."></textarea>
+        <div class="form-actions">
+          <button class="btn-save" onclick="saveEntry()">Save Entry 💾</button>
+          <button class="btn-clear" onclick="clearForm()">Clear</button>
+          <span class="save-msg" id="save-msg">✓ Saved!</span>
+        </div>
+      </div>
+      <div class="page-number" id="page-num">—</div>
+    </div>
+  </div>
+
+  <!-- ENTRIES VIEW -->
+  <div id="entries-view" style="display:none;">
+    <div class="search-bar" id="search-bar">
+      <input type="text" class="search-input" id="search-input" placeholder="🔍 Search your diary..." oninput="renderEntries()" />
+    </div>
+    <div class="entries-section" id="entries-list"></div>
+    <div class="stats-bar" id="stats-bar"></div>
+  </div>
+
+</div>
+
+<div class="scroll-hint">scroll down for more entries ↓</div>
+
+<script>
+  // ── DATA ──
+  let entries = JSON.parse(localStorage.getItem('diary_entries') || '[]');
+  let selectedMood = '';
+
+  // ── INIT ──
+  (function init() {
+    const now = new Date();
+    const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const dateStr = now.toLocaleDateString('en-IN', opts);
+    document.getElementById('entry-date').value = dateStr;
+    document.getElementById('today-date').textContent = dateStr;
+    document.getElementById('page-num').textContent = `${entries.length + 1}`;
+  })();
+
+  // ── VIEWS ──
+  function showView(view, btn) {
+    document.querySelectorAll('.toolbar button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('write-view').style.display  = view === 'write'   ? 'block' : 'none';
+    document.getElementById('entries-view').style.display = view === 'entries' ? 'block' : 'none';
+    if (view === 'entries') renderEntries();
+  }
+
+  // ── MOOD ──
+  function selectMood(btn, emoji) {
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedMood = emoji;
+  }
+
+  // ── SAVE ──
+  function saveEntry() {
+    const title = document.getElementById('entry-title').value.trim();
+    const body  = document.getElementById('entry-body').value.trim();
+    const date  = document.getElementById('entry-date').value.trim();
+    if (!body && !title) { alert('Kuch toh likho diary mein! ✍️'); return; }
+
+    const entry = {
+      id: Date.now(),
+      date: date || new Date().toLocaleDateString('en-IN', { weekday:'long',year:'numeric',month:'long',day:'numeric' }),
+      title: title || 'Untitled',
+      body,
+      mood: selectedMood,
+      tags: extractTags(body),
+      timestamp: Date.now()
+    };
+
+    entries.unshift(entry);
+    localStorage.setItem('diary_entries', JSON.stringify(entries));
+
+    const msg = document.getElementById('save-msg');
+    msg.classList.add('show');
+    setTimeout(() => msg.classList.remove('show'), 2000);
+
+    document.getElementById('page-num').textContent = `${entries.length + 1}`;
+  }
+
+  function clearForm() {
+    document.getElementById('entry-title').value = '';
+    document.getElementById('entry-body').value = '';
+    selectedMood = '';
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  }
+
+  // ── TAGS ──
+  function extractTags(text) {
+    const tags = text.match(/#\w+/g) || [];
+    return [...new Set(tags)].slice(0, 5);
+  }
+
+  // ── RENDER ENTRIES ──
+  function renderEntries() {
+    const list = document.getElementById('entries-list');
+    const query = (document.getElementById('search-input')?.value || '').toLowerCase();
+
+    const filtered = entries.filter(e =>
+      !query ||
+      e.title.toLowerCase().includes(query) ||
+      e.body.toLowerCase().includes(query) ||
+      e.date.toLowerCase().includes(query)
+    );
+
+    if (filtered.length === 0) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">📓</div>
+          <p>${query ? 'Koi entry nahi mili...' : 'Abhi koi entry nahi hai. Likho apni pehli entry!'}</p>
+        </div>`;
+    } else {
+      list.innerHTML = filtered.map((e, i) => `
+        <div class="entry-card" style="animation-delay:${i * 0.05}s">
+          <div class="entry-card-top">
+            <span class="card-date">${e.date}</span>
+            <span class="card-mood-display">${e.mood || ''}</span>
+            <div class="card-actions">
+              <button class="card-action-btn" onclick="editEntry(${e.id})">✏️ Edit</button>
+              <button class="card-action-btn" onclick="deleteEntry(${e.id})">🗑️ Delete</button>
+            </div>
+          </div>
+          <div class="card-title">${escHtml(e.title)}</div>
+          <div class="card-body" id="body-${e.id}">${escHtml(e.body)}</div>
+          ${e.body.length > 200 ? `<button class="card-actio
